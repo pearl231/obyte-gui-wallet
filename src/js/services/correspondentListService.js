@@ -81,9 +81,11 @@ angular.module('copayApp.services').factory('correspondentListService', function
 			if ($rootScope.newMessagesCount[peer_address] == 1 && (!$state.is('correspondentDevices.correspondentDevice') || root.currentCorrespondent.device_address != peer_address)) {
 				root.messageEventsByCorrespondent[peer_address].push({
 					bIncoming: false,
-					message: {
-						type: 'newMessages'
-					},
+					message: [
+						{
+							type: 'newMessages'
+						}
+					],
 					type: 'system',
 					new_message_delim: true
 				});
@@ -848,10 +850,12 @@ angular.module('copayApp.services').factory('correspondentListService', function
 						messageEvents.unshift({
 							type: 'system', 
 							bIncoming: false, 
-							message: {
-								type: 'timestamp',
-								date: last_msg_ts.toDateString()
-							}, 
+							message: [
+								{
+									type: 'timestamp',
+									date: last_msg_ts.toDateString()
+								}
+							], 
 							timestamp: Math.floor(msg_ts.getTime() / 1000)
 						});	
 					}
@@ -870,10 +874,12 @@ angular.module('copayApp.services').factory('correspondentListService', function
 					messageEvents.unshift({
 						type: 'system', 
 						bIncoming: false, 
-						message: {
-							type: 'timestamp',
-							date: (last_msg_ts ? last_msg_ts : new Date()).toDateString()
-						},
+						message: [
+							{
+								type: 'timestamp',
+								date: (last_msg_ts ? last_msg_ts : new Date()).toDateString()
+							}
+						],
 						timestamp: Math.floor((last_msg_ts ? last_msg_ts : new Date()).getTime() / 1000)
 					});
 				}
@@ -891,11 +897,13 @@ angular.module('copayApp.services').factory('correspondentListService', function
 			messageEvents.push({
 				type: 'system', 
 				bIncoming: false, 
-				message: {
-					type: 'timestamp',
-					date: msg_ts.toDateString()
-				 },
-				 timestamp: Math.floor(msg_ts.getTime() / 1000)
+				message: [
+					{
+						type: 'timestamp',
+						date: msg_ts.toDateString()
+					 }
+				],
+				timestamp: Math.floor(msg_ts.getTime() / 1000)
 			});	
 		}
 	}
@@ -1125,13 +1133,15 @@ angular.module('copayApp.services').factory('correspondentListService', function
 			device.updateCorrespondentProps(correspondent);
 			if (newState != oldState) {
 				if (!root.messageEventsByCorrespondent[correspondent_address]) root.messageEventsByCorrespondent[correspondent_address] = [];
-				var message = {
-					type: 'system',
-					message: JSON.stringify({state: newState}),
-					timestamp: Math.floor(Date.now() / 1000),
-					chat_recording_status: true,
-					message_counter: message_counter
-				};
+				var message = [
+					{
+						type: 'system',
+						message: JSON.stringify({state: newState}),
+						timestamp: Math.floor(Date.now() / 1000),
+						chat_recording_status: true,
+						message_counter: message_counter
+					}
+				];
 				insertMsg(root.messageEventsByCorrespondent[correspondent_address], parseMessage(message));
 				$timeout(function(){
 					$rootScope.$digest();
