@@ -139,7 +139,7 @@ angular.module('copayApp.services').factory('correspondentListService', function
 		var token = crypto.randomBytes(4).readUInt32BE(0);
 		var index = crypto.randomBytes(4).readUInt32BE(0);
 		
-		function t(obj) {
+		function tokenize(obj) {
 			index++;
 			assocReplacements[index] = obj;
 			return token.toString() + index.toString() + token.toString();
@@ -155,7 +155,7 @@ angular.module('copayApp.services').factory('correspondentListService', function
 		//	if (arrMyAddresses.indexOf(address) >= 0)
 		//		return address;
 			//return '<a send-payment address="'+address+'">'+address+'</a>';
-			return t({
+			return tokenize({
 				type: 'paymentDropdown',
 				address: address
 			});
@@ -170,12 +170,12 @@ angular.module('copayApp.services').factory('correspondentListService', function
 		//		return str;
 			var objPaymentRequest = parsePaymentRequestQueryString(query_string);
 			if (!objPaymentRequest) {
-				return t({
+				return tokenize({
 					type: 'paymentDropdown',
 					address: address
 				});
 			}
-			return t({
+			return tokenize({
 				type: 'paymentRequest',
 				amount: objPaymentRequest.amount,
 				asset: objPaymentRequest.asset,
@@ -185,7 +185,7 @@ angular.module('copayApp.services').factory('correspondentListService', function
 				amountStr: objPaymentRequest.amountStr
 			});
 		}).replace(pairing_regexp, function(str, uri, device_pubkey, hub, pairing_code){
-			return t({
+			return tokenize({
 				type: 'pairingCode', 
 				device_pubkey: device_pubkey,
 				hub: hub,
@@ -193,7 +193,7 @@ angular.module('copayApp.services').factory('correspondentListService', function
 				uri: uri
 			});
 		}).replace(textcoin_regexp, function(str, uri, mnemonic){
-			return t({
+			return tokenize({
 				type: 'textcoin',
 				uri: uri,
 				mnemonic: mnemonic
@@ -203,19 +203,19 @@ angular.module('copayApp.services').factory('correspondentListService', function
 			if (!assocParams)
 				return str;
 			
-			return t({
+			return tokenize({
 				type: 'data',
 				uri: uri,
 				data: JSON.stringify(assocParams, null, 2)
 			})
 		}).replace(/\[(.+?)\]\(suggest-command:(.+?)\)/g, function(str, description, command){
-			return t({
+			return tokenize({
 				type: 'suggestCommand',
 				command: command,
 				description: description
 			});
 		}).replace(/\[(.+?)\]\(command:(.+?)\)/g, function(str, description, command){
-			return t({
+			return tokenize({
 				type: 'command',
 				command: command,
 				description: description
@@ -223,10 +223,10 @@ angular.module('copayApp.services').factory('correspondentListService', function
 		}).replace(/\[(.+?)\]\(payment:([\w\/+=]+?)\)/g, function(str, description, paymentJsonBase64){
 			var arrMovements = getMovementsFromJsonBase64PaymentRequest(paymentJsonBase64, true);
 			if (!arrMovements)
-				return t(invalidMessage('payment request'));
+				return tokenize(invalidMessage('payment request'));
 
 			description = 'Payment request: '+arrMovements.join(', ');
-			return t({
+			return tokenize({
 				type: 'sendPayment',
 				paymentJsonBase64: paymentJsonBase64,
 				description: description
@@ -234,9 +234,9 @@ angular.module('copayApp.services').factory('correspondentListService', function
 		}).replace(/\[(.+?)\]\(vote:([\w\/+=]+?)\)/g, function(str, description, voteJsonBase64){
 			var objVote = getVoteFromJsonBase64(voteJsonBase64);
 			if (!objVote)
-				return t(invalidMessage('vote request'));
+				return tokenize(invalidMessage('vote request'));
 
-			return t({
+			return tokenize({
 				type: 'vote',
 				voteJsonBase64: voteJsonBase64,
 				choice: objVote.choice
@@ -244,20 +244,20 @@ angular.module('copayApp.services').factory('correspondentListService', function
 		}).replace(/\[(.+?)\]\(profile:([\w\/+=]+?)\)/g, function(str, description, privateProfileJsonBase64){
 			var objPrivateProfile = getPrivateProfileFromJsonBase64(privateProfileJsonBase64);
 			if (!objPrivateProfile)
-				return t(invalidMessage('profile'));
+				return tokenize(invalidMessage('profile'));
 
-			return t({
+			return tokenize({
 				type: 'profile',
 				privateProfileJsonBase64: privateProfileJsonBase64,
 				label: objPrivateProfile._label
 			});
 		}).replace(/\[(.+?)\]\(profile-request:([\w,]+?)\)/g, function(str, description, fields_list){
-			return t({
+			return tokenize({
 				type: 'profileRequest',
 				fields_list: fields_list
 			});
 		}).replace(/\[(.+?)\]\(sign-message-request(-network-aware)?:(.+?)\)/g, function(str, description, network_aware, message_to_sign){
-			return t({
+			return tokenize({
 				type: 'signMessageRequest',
 				message_to_sign: message_to_sign,
 				network_aware: network_aware
@@ -265,7 +265,7 @@ angular.module('copayApp.services').factory('correspondentListService', function
 		}).replace(/\[(.+?)\]\(signed-message:([\w\/+=]+?)\)/g, function(str, description, signedMessageBase64){
 			var info = getSignedMessageInfoFromJsonBase64(signedMessageBase64);
 			if (!info)
-				return t(invalidMessage('signed message'));
+				return tokenize(invalidMessage('signed message'));
 
 			var objSignedMessage = info.objSignedMessage;
 			var displayed_signed_message = (typeof objSignedMessage.signed_message === 'string') ? objSignedMessage.signed_message : JSON.stringify(objSignedMessage.signed_message, null, '\t');
@@ -275,34 +275,34 @@ angular.module('copayApp.services').factory('correspondentListService', function
 			else if (info.bValid === false)
 				text += " (invalid)";
 
-			return t({
+			return tokenize({
 				type: 'signedMessage',
 				text: text,
 				verify: typeof info.bValid === 'undefined',
 				signedMessageBase64: signedMessageBase64
 			});
 		}).replace(url_regexp, function(str){
-			return t({
+			return tokenize({
 				type: 'openExternalLink',
 				link: str
 			});
 		}).replace(/\(prosaic-contract:([\w\/+=]+?)\)/g, function(str, contractJsonBase64){
 			var objContract = getProsaicContractFromJsonBase64(contractJsonBase64);
 			if (!objContract)
-				return t(invalidMessage('contract'));
+				return tokenize(invalidMessage('contract'));
 			
-			return t({
+			return tokenize({
 				type: 'prosaicContract',
 				contractJsonBase64: contractJsonBase64,
 				status: objContract.status ? escapeHtml(objContract.status) : 'offer',
 				title: objContract.title
 			})
 		}).replace(/\n/g, function(str) {
-			return t({
+			return tokenize({
 				type: 'newline'
 			});
 		}).replace(/\t/g, function(str) {
-			return t({
+			return tokenize({
 				type: 'tab'
 			});
 		});
@@ -491,7 +491,7 @@ angular.module('copayApp.services').factory('correspondentListService', function
 		var token = crypto.randomBytes(4).readUInt32BE(0);
 
 		// Function t short hand for tokenize
-		function t(obj) {
+		function tokenize(obj) {
 			index++;
 			assocReplacements[index] = obj;
 			return token.toString() + index.toString() + token.toString();
@@ -501,30 +501,29 @@ angular.module('copayApp.services').factory('correspondentListService', function
 			if (!ValidationUtils.isValidAddress(address))
 				return str;
 			var objPaymentRequest = parsePaymentRequestQueryString(query_string);
-			return t({
+			return tokenize({
 				type: 'sentPaymentRequest',
-				query_string: query_string,
-				objPaymentRequest: objPaymentRequest,
+				amountStr: objPaymentRequest.amountStr,
 				address: address
 			});
 		}).replace(/\[(.+?)\]\(payment:([\w\/+=]+?)\)/g, function(str, description, paymentJsonBase64){
 			var arrMovements = getMovementsFromJsonBase64PaymentRequest(paymentJsonBase64);
 			if (!arrMovements)
-				return t(invalidMessage('payment request'));
+				return tokenize(invalidMessage('payment request'));
 
-			return t({
+			return tokenize({
 				type: 'paymentRequest',
 				arrMovements: arrMovements
 			});
 		}).replace(pairing_regexp, function(str, uri, device_pubkey, hub, pairing_code){
-			return t({
+			return tokenize({
 				type: 'pairingCode',
 				device_pubkey: device_pubkey,
 				hub: hub,
 				pairing_code: pairing_code
 			});
 		}).replace(textcoin_regexp, function(str, uri, mnemonic){
-			return t({
+			return tokenize({
 				type: 'textcoin',
 				mnemonic: mnemonic
 			});
@@ -533,43 +532,43 @@ angular.module('copayApp.services').factory('correspondentListService', function
 			if (!assocParams)
 				return str;
 
-			return t({
+			return tokenize({
 				type: 'data', 
 				data: JSON.stringify(assocParams, null, 2)
 			});
 		}).replace(/\[(.+?)\]\(vote:([\w\/+=]+?)\)/g, function(str, description, voteJsonBase64){
 			var objVote = getVoteFromJsonBase64(voteJsonBase64);
 			if (!objVote)
-				return t(invalidMessage('vote request'));
+				return tokenize(invalidMessage('vote request'));
 
-			return t({
+			return tokenize({
 				type: 'vote',
 				choice: objVote.choice
 			});
 		}).replace(/\[(.+?)\]\(profile:([\w\/+=]+?)\)/g, function(str, description, privateProfileJsonBase64){
 			var objPrivateProfile = getPrivateProfileFromJsonBase64(privateProfileJsonBase64);
 			if (!objPrivateProfile)
-				return t(invalidMessage('profile'));
+				return tokenize(invalidMessage('profile'));
 
-			return t({
+			return tokenize({
 				type: 'profile',
 				privateProfileJsonBase64: privateProfileJsonBase64,
 				label: objPrivateProfile._label
 			});
 		}).replace(/\[(.+?)\]\(profile-request:([\w,]+?)\)/g, function(str, description, fields_list){
-			return t({
+			return tokenize({
 				type: 'profileRequest',
 				fields_list: fields_list
 			});
 		}).replace(/\[(.+?)\]\(sign-message-request:(.+?)\)/g, function(str, description, message_to_sign){
-			return t({
+			return tokenize({
 				type: 'signMessageRequest',
 				message_to_sign: message_to_sign
 			});
 		}).replace(/\[(.+?)\]\(signed-message:([\w\/+=]+?)\)/g, function(str, description, signedMessageBase64){
 			var info = getSignedMessageInfoFromJsonBase64(signedMessageBase64);
 			if (!info)
-				return t(invalidMessage('signed message'));
+				return tokenize(invalidMessage('signed message'));
 
 			var objSignedMessage = info.objSignedMessage;
 			var displayed_signed_message = (typeof objSignedMessage.signed_message === 'string') ? objSignedMessage.signed_message : JSON.stringify(objSignedMessage.signed_message, null, '\t');
@@ -579,34 +578,34 @@ angular.module('copayApp.services').factory('correspondentListService', function
 			else if (info.bValid === false)
 				text += " (invalid)";
 
-			return t({
+			return tokenize({
 				type: 'signedMessage',
 				signedMessageBase64: signedMessageBase64,
 				text: text,
 				verify: typeof info.bValid === 'undefined'
 			});
 		}).replace(url_regexp, function(str){
-			return t({
+			return tokenize({
 				type: 'openExternalLink',
 				link: str
 			});
 		}).replace(/\(prosaic-contract:([\w\/+=]+?)\)/g, function(str, contractJsonBase64){
 			var objContract = getProsaicContractFromJsonBase64(contractJsonBase64);
 			if (!objContract)
-				return t(invalidMessage('contract'));
+				return tokenize(invalidMessage('contract'));
 
-			return t({
+			return tokenize({
 				type: 'prosaicContract',
 				contractJsonBase64: contractJsonBase64,
 				status: objContract.status ? objContract.status : 'offer',
 				title: objContract.title
 			});
 		}).replace(/\n/g, function(str) {
-			return t({
+			return tokenize({
 				type: 'newline'
 			});
 		}).replace(/\t/g, function(str) {
-			return t({
+			return tokenize({
 				type: 'tab'
 			});
 		});
@@ -912,14 +911,86 @@ angular.module('copayApp.services').factory('correspondentListService', function
 				message.chat_recording_status = true;
 				break;
 			case "html": 
+				/*
+				Compatability layer for current and old messages
+				stored as HTML.
+				
+				These were found by running the following and looking for html types:
+				git rev-list --all | xargs -I% git --no-pager grep -F -e "chatStorage.store" % -- src/js/controllers/correspondentDevice.js
+				git rev-list --all | xargs -I% git --no-pager grep -F -e "chatStorage.store" % -- src/js/services/correspondentListService.js
+				
+				**/
+
+				// Currently in use for sent_payment and received_payment event handlers. TODO: Better storage of those types
 				var match = message.message.match(/<a ng-click="showPayment\('([^']+)'\)" class="payment">(.+?): (.+?)<\/a>/);
-				message.message = {
-					type: 'showPayment',
-					asset: match[1],
-					title: match[2],
-					text: match[3]
-				};
-				break;
+				if (match.length) {
+					message.message = {
+						type: 'showPayment',
+						asset: match[1],
+						title: match[2],
+						text: match[3]
+					};
+					break;
+				}
+
+				/* 4f612f74af78f7b41b1dc140f770b3f6abef4c5b:src/js/controllers/correspondentDevice.js
+
+				paymentRequestCode = 'byteball:'+my_address+'?amount='+peer_amount+'&asset='+encodeURIComponent(contract.peerAsset);
+				var paymentRequestText = '[your share of payment to the contract]('+paymentRequestCode+')';
+				device.sendMessageToDevice(correspondent.device_address, 'text', paymentRequestText);
+				var body = correspondentListService.formatOutgoingMessage(paymentRequestText);
+				correspondentListService.addMessageEvent(false, correspondent.device_address, body);
+				if (correspondent.my_record_pref && correspondent.peer_record_pref) chatStorage.store(correspondent.device_address, body, 0, 'html');
+				*/
+				match = message.message.match(/<i>(.+?) to (.+?)<\/i>/);
+				if (match.length) {
+					message.message = {
+						type: 'sentPaymentRequest',
+						amountStr: match[1],
+						address: match[2]
+					};
+					break;
+				}
+
+				/* 4f612f74af78f7b41b1dc140f770b3f6abef4c5b:src/js/controllers/correspondentDevice.js
+
+				var chat_message = "(prosaic-contract:" + Buffer.from(JSON.stringify(objContract), 'utf8').toString('base64') + ")";
+				var body = correspondentListService.formatOutgoingMessage(chat_message);
+				correspondentListService.addMessageEvent(false, correspondent.device_address, body);
+				device.readCorrespondent(correspondent.device_address, function(correspondent) {
+				if (correspondent.my_record_pref && correspondent.peer_record_pref) chatStorage.store(correspondent.device_address, body, 0, 'html');
+
+				... 
+
+				var chat_message = "(prosaic-contract:" + Buffer.from(JSON.stringify(objContract), 'utf8').toString('base64') + ")";
+				var body = correspondentListService.formatOutgoingMessage(chat_message);
+				correspondentListService.addMessageEvent(false, correspondent.device_address, body);
+				if (correspondent.my_record_pref && correspondent.peer_record_pref) chatStorage.store(correspondent.device_address, body, 0, 'html');
+
+				... 
+
+				var chat_message = "(prosaic-contract:" + Buffer.from(JSON.stringify(objContract), 'utf8').toString('base64') + ")";
+				var body = correspondentListService.formatOutgoingMessage(chat_message);
+				correspondentListService.addMessageEvent(false, correspondent.device_address, body);
+				if (correspondent.my_record_pref && correspondent.peer_record_pref) chatStorage.store(correspondent.device_address, body, 0, 'html');
+				*/
+				match = message.message.match(/\(prosaic-contract:([\w\/+=]+?)\)/);
+				if (match.length) {
+					objContract = getProsaicContractFromJsonBase64(match[1]);
+					if (!objContract)
+						break;
+					
+					message.message = {
+						type: 'prosaicContract',
+						contractJsonBase64: match[1],
+						status: objContract.status ? objContract.status : 'offer',
+						title: objContract.title
+					};
+					break;
+				}
+
+
+
 		}
 		return message;
 	}

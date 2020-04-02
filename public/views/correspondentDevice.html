@@ -579,15 +579,11 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                       part.type: sentPaymentRequest 
                       expects:
                         part.address: <string>
-                        part.query_string: <string>
+                        part.amountStr: <string>
                     -->
                     <span ng-switch-when="sentPaymentRequest">
-                      <i ng-if="part.objPaymentRequest">
-                        {{part.objPaymentRequest.amountStr}} to {{part.address}}
+                        {{part.amountStr}} to {{part.address}}
                       </i>
-                      <span ng-if="!part.objPaymentRequest">
-                        {{part.address}}
-                      </span>
                     </span>
   
                     <!--
@@ -602,7 +598,7 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                       class="payment">
                       {{part.title}}: {{part.text}}
                     </a>
-                    
+
                     <!--
                       part.type: paymentRequest
                       expects:
