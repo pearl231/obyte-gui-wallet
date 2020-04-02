@@ -313,11 +313,24 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
               <div ng-class="messageEvent.bIncoming ? 'from-them' : (messageEvent.type == 'system' ? 'system' : 'from-me')" class="bubble">
                 <!-- system messages -->
                 <span ng-if="messageEvent.type == 'system'">
-                  <span class="system-span">
-                    chat recording {{messageEvent.state ? "&nbsp;" : ""}}
+                  <span ng-repeat="part in messageEvent.message track by $index" ng-switch="part.type">
+                    <span ng-switch-when="newMessages"
+                      class="system-span">
+                      new messages
+                    </span>
+                    
+                    <span ng-switch-when="recordingPref">
+                      <span class="system-span">
+                        chat recording {{part.state ? "&nbsp;" : ""}}
+                      </span>
+                      <b dropdown-toggle="#recording-drop">{{part.state ? "ON" : "OFF"}}</b>
+                      <span class="system-span padding"></span>
+                    </span>
+
+                    <span ng-switch-when="timestamp" class="system-span">
+                      {{part.date}}
+                    </span>
                   </span>
-                  <b dropdown-toggle="#recording-drop">{{messageEvent.state ? "ON" : "OFF"}}</b>
-                  <span class="system-span padding"></span>
                 </span>
 
                 
@@ -377,6 +390,19 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                        {{part.amountStr}}
                     </a>
   
+                    <!--
+                      part.type: showPayment
+                      expects:
+                        part.asset: <any>
+                        part.title: <string>
+                        part.text: <string>
+                    -->
+                    <a ng-switch-when="showPayment"
+                      ng-click="showPayment(part.asset)"
+                      class="payment">
+                      {{part.title}}: {{part.text}}
+                    </a>
+
                     <!-- 
                       part.type: pairingCode
                       expects:
@@ -564,6 +590,19 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                       </span>
                     </span>
   
+                    <!--
+                      part.type: showPayment
+                      expects:
+                        part.asset: <any>
+                        part.title: <string>
+                        part.text: <string>
+                    -->
+                    <a ng-switch-when="showPayment"
+                      ng-click="showPayment(part.asset)"
+                      class="payment">
+                      {{part.title}}: {{part.text}}
+                    </a>
+                    
                     <!--
                       part.type: paymentRequest
                       expects:
