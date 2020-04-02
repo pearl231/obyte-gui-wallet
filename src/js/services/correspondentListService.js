@@ -911,6 +911,15 @@ angular.module('copayApp.services').factory('correspondentListService', function
 				};
 				message.chat_recording_status = true;
 				break;
+			case "html": 
+				var match = message.message.match(/<a ng-click="showPayment\('([^']+)'\)" class="payment">(.+?): (.+?)<\/a>/);
+				message.message = {
+					type: 'showPayment',
+					asset: match[1],
+					title: match[2],
+					text: match[3]
+				};
+				break;
 		}
 		return message;
 	}
