@@ -310,7 +310,403 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
         <div class="chat-message" ng-repeat="messageEvent in messageEvents">
             <!--div style="width:100%" ng-style="messageEvent.bIncoming ? {'text-align': 'left'} : {'text-align': 'right'}"-->
               <!--div style="max-width: 70%; text-align: left; display: inline-block" ng-bind-html="messageEvent.message"></div-->
-              <div ng-class="messageEvent.bIncoming ? 'from-them' : (messageEvent.type == 'system' ? 'system' : 'from-me')" class="bubble" dynamic="messageEvent.message.text || messageEvent.message"></div>
+              <div ng-class="messageEvent.bIncoming ? 'from-them' : (messageEvent.type == 'system' ? 'system' : 'from-me')" class="bubble">
+                <!-- system messages -->
+                <span ng-if="messageEvent.type == 'system'">
+                  <span class="system-span">
+                    chat recording {{messageEvent.state ? "&nbsp;" : ""}}
+                  </span>
+                  <b dropdown-toggle="#recording-drop">{{messageEvent.state ? "ON" : "OFF"}}</b>
+                  <span class="system-span padding"></span>
+                </span>
+
+                
+                <!-- parsed incoming messages -->
+                <span ng-if="messageEvent.bIncoming ">
+                  <span ng-repeat="part in messageEvent.message track by $index" ng-switch="part.type">
+                    <!-- 
+                      part.type: paymentDropdown 
+                      expects:
+                        part.address: <string>
+                    -->
+                    <span ng-switch-when="paymentDropdown">
+                      <a dropdown-toggle="#pop{{part.address}}">{{part.address}}</a>
+                      <ul id="pop{{part.address}}" class="f-dropdown" style="left:0px" data-dropdown-content>
+                        <li>
+                          <a ng-click="sendPayment(part.address)">
+                            {{gettext('Pay to this address')}}
+                          </a>
+                        </li>
+                        <li>
+                          <a ng-click="offerContract(part.address)">
+                            {{gettext('Offer a contract')}}
+                          </a>
+                        </li>
+                        <li>
+                          <a ng-click="offerProsaicContract(part.address)">
+                            {{gettext('Offer prosaic contract')}}
+                          </a>
+                        </li>
+                      </ul>
+                    </span>
+  
+                    <!--
+                      part.type: openExternalLink
+                      expects:
+                        part.link: <string>
+                    -->
+                    <a ng-switch-when="openExternalLink" 
+                      ng-click="openExternalLink(part.link)" 
+                      class="external-link">
+                      {{part.link}}
+                    </a>
+  
+                    <!--
+                      part.type: paymentRequest
+                      expects:
+                        part.address: <string>
+                        part.amount: <any>
+                        part.asset: <any>
+                        part.device_address: <any>
+                        part.single_address: <any>
+                        part.base64data: <any>
+                        part.amountStr: <any>
+                    -->
+                    <a ng-switch-when="paymentRequest" 
+                       ng-click="sendPayment(part.address, part.amount, part.asset, part.device_address, part.single_address, part.base64data)">
+                       {{part.amountStr}}
+                    </a>
+  
+                    <!-- 
+                      part.type: pairingCode
+                      expects:
+                        part.device_pubkey: <string>
+                        part.hub: <string>
+                        part.pairing_code: <string>
+                        part.uri: <string>
+                    -->
+                    <a ng-switch-when="pairDevice"
+                       ng-click="handleUri(part.uri)">
+                      [Pair with device: {{part.device_pubkey}}@{{part.hub}}#{{part.pairing_code}}]
+                    </a>
+  
+                    <!-- 
+                      part.type: textcoin
+                      expects: 
+                        part.uri: <string>
+                        part.mnemonic: <string>
+                    -->
+                    <a ng-switch-when="textcoin"
+                       ng-click="handleUrl(part.uri)">
+                      [Claim textcoin: {{part.mnemonic}}]
+                    </a>
+  
+                    <!-- 
+                      part.type: data
+                      expects:
+                        part.uri: <string>
+                        part.data: <string>
+                    -->
+                    <a ng-switch-when="data"
+                       ng-click="handleUri(part.uri)">
+                      [Send data: {{JSON.stringify(part.assocParams, null, 2)}}]
+                    </a>
+                    
+                    <!-- 
+                      part.type: suggestCommand 
+                      expects:
+                        part.command: <string>
+                        part.description: <string>
+                    -->
+                    <a ng-switch-when="suggestCommand"
+                       ng-click="suggestCommand(part.command)"
+                       class="suggest-command">
+                      {{part.description}}
+                    </a>
+                    
+                    <!--
+                      part.type: command
+                      expects:
+                        part.command: <string>
+                        part.description: <string>
+                    -->
+                    <a ng-switch-when="command"
+                       ng-click="sendCommand(part.command)"
+                       class="command">
+                      {{part.description}}
+                    </a>
+                    
+                    <!--
+                      part.type: sendPayment
+                      expects:
+                        part.paymentJsonBase64: <string>
+                        part.description: <string>
+                    -->
+                    <a ng-switch-when="sendPayment"
+                       ng-click="sendMultiPayment(part.paymentJsonBase64)">
+                      {{part.description}}
+                    </a>
+                    
+                    <!--
+                      part.type: vote
+                      expects:
+                        part.voteJsonBase64: <string>
+                        part.choice: <string>
+                    -->
+                    <a ng-switch-when="vote"
+                       ng-click="sendVote(part.voteJsonBase64)">
+                      {{part.choice}}  
+                    </a>
+                    
+                    <!--
+                      part.type: profile
+                      expects:
+                        part.privateProfileJsonBase64: <string>
+                        part.label: <string>
+                    -->
+                    <a ng-switch-when="profile"
+                       ng-click="acceptPrivateProfile(part.privateProfileJsonBase64)">
+                      [Profile of {{part.label}}]  
+                    </a>
+                    
+                    <!--
+                      part.type: profileRequest
+                      expects:
+                        part.fields_list: <string>
+                    -->
+                    <a ng-switch-when="profileRequest"
+                       ng-click="choosePrivateProfile(part.fields_list)">
+                      [Request for profile]  
+                    </a>
+                    
+                    <!-- 
+                      part.type: signMessageRequest
+                      expects:
+                        part.message_to_sign: <string>
+                        part.network_aware: <any>
+                    -->
+                    <a ng-switch-when="signMessageRequest"
+                       ng-click="showSignMessageModal(part.message_to_sign, !!part.network_aware">
+                       [Request to sign message: {{tryParseBase64(part.message_to_sign)}}]
+                    </a>
+                    
+                    <!-- 
+                      part.type: signedMessage
+                      expects:
+                        part.text: <string>
+                        part.verify: <bool>
+                        part.signedMessageBase64: <string>
+                    -->
+                    <i ng-switch-when="signedMessage">
+                      [
+                      {{part.text}}
+                      <span ng-if="part.verify == true">
+                        (
+                          <a ng-click="verifySignedMessage(part.signedMessageBase64)">
+                            verify
+                          </a>
+                        )
+                      </span>
+                      ]
+                    </i>
+                    
+                    <!-- 
+                      part.type: prosaicContract
+                      expects:
+                        part.contractJsonBase64: <string>
+                        part.status: <string>
+                        part.title: <string>
+                    -->
+                    <a ng-switch-when="prosaicContract"
+                       ng-click="showProsaicContractOffer(part.contractJsonBase64, true)"
+                       class="prosaic_contract_offer">
+                      [Prosaic contract {{part.status}}: {{part.title}}]
+                    </a>
+                    
+                    <!--
+                      part.type: invalid
+                      expects:
+                        part.invalid: <string>
+                    -->
+                    <span ng-switch-when="invalid">
+                      <i>
+                        [invalid {{part.invalid}}]
+                      </i>
+                    </span>
+  
+                    <!-- 
+                      part.type: text
+                      expects:
+                        part.text: <string>
+                     -->
+                    <span ng-switch-when="text">{{part.text}}</span>
+
+                    <br ng-switch-when="newline" />
+                    <span ng-switch-when="tab">&nbps; &nbps;</span>
+                  </span>                  
+                </span>
+
+                <!-- parsed outgoing messages -->
+                <span ng-if="!messageEvent.bIncoming">
+                  <span ng-repeat="part in messageEvent.message track by $index" ng-switch="part.type">
+                    <!-- 
+                      part.type: sentPaymentRequest 
+                      expects:
+                        part.address: <string>
+                        part.query_string: <string>
+                    -->
+                    <span ng-switch-when="sentPaymentRequest">
+                      <i ng-if="part.objPaymentRequest">
+                        {{part.objPaymentRequest.amountStr}} to {{part.address}}
+                      </i>
+                      <span ng-if="!part.objPaymentRequest">
+                        {{part.address}}
+                      </span>
+                    </span>
+  
+                    <!--
+                      part.type: paymentRequest
+                      expects:
+                        part.arrMovements: <array>
+                    -->
+                    <i ng-switch-when="paymentRequest">
+                      [Payment Request: {{part.arrMovements.join(', ')}}]
+                    </i>
+                      
+                    <!-- 
+                      part.type: pairingCode
+                      expects:
+                        part.device_pubkey: <string>
+                        part.hub: <string>
+                        part.pairing_code: <string>
+                    -->
+                    <i ng-switch-when="pairingCode">
+                      [Sent pairing code: {{part.device_pubkey}}@{{part.hub}}#{{part.pairing_code}}]
+                    </i>
+                    
+                    <!--
+                      part.type: textcoin
+                      expects:
+                        part.mnemonic: <string>
+                    -->
+                    <i ng-switch-when="textcoin">
+                      [Sent textcoin: {{part.mnemonic}}]
+                    </i>
+  
+                    <!--
+                      part.type: data
+                      expects:
+                        part.data: <string>
+                    -->
+                    <i ng-switch-when="data">
+                      [Sent data: {{part.data}}]
+                    </i>
+  
+                    <!--
+                      part.type: vote
+                      expects:
+                        part.choice: <string>
+                    -->
+                    <i ng-switch-when="vote">
+                      [Vote request: {{part.choice}}]
+                    </i>
+  
+                    <!--
+                      part.type: profile
+                      expects:
+                        part.privateProfileJsonBase64: <string>
+                        part.label: <string>
+                    -->
+                    <a ng-switch-when="profile"
+                      ng-click="acceptPrivateProfile(part.privateProfileJsonBase64)">
+                      [Profile of {{part.label}}]
+                    </a>
+  
+                    <!-- 
+                      part.type: profileRequest
+                      expects:
+                        part.fields_list: <string>
+                    -->
+                    <i ng-switch-when="profileRequest">
+                      [Request for profile fields {{part.fields_list}}]
+                    </i>
+  
+                    <!--
+                      part.type: signMessageRequest
+                      expects:
+                        part.message_to_sign: <string>
+                    -->
+                    <i ng-switch-when="signMessageRequest">
+                      [Request to sign message: {{part.message_to_sign}}]
+                    </i>
+  
+                    <!-- 
+                      part.type: signedMessage 
+                      expects:
+                        part.text: <string>
+                        part.signedMessageBase64: <string>
+                        part.verify: <bool>
+                    -->
+                    <i ng-switch-when="signedMessage">
+                      [
+                      {{part.text}}
+                      <span ng-if="part.verify == true">
+                        (
+                          <a ng-click="verifySignedMessage(part.signedMessageBase64)">
+                            verify
+                          </a>
+                        )
+                      </span>
+                      ]
+                    </i>
+  
+                    <!-- 
+                      part.type: openExternalLink
+                      expects:
+                        part.link: <string>
+                    -->
+                    <a ng-switch-when="openExternalLink"
+                      ng-click="openExternalLink(part.link)">
+                      {{part.link}}
+                    </a>
+  
+                    <!--
+                      part.type: prosaicContract
+                      expects:
+                        part.contractJsonBase64: <string>
+                        part.status: <string>
+                        part.title: <string>
+                    -->
+                    <a ng-switch-when="prosaicContract" 
+                      ng-click="showProsaicContractOffer(part.contractJsonBase64, false)" 
+                      class="prosaic_contract_offer">
+                      [Prosaic contract {{part.status}}: {{part.title}}]
+                    </a>
+  
+                    <!-- 
+                      part.type: invalid
+                      expects:
+                        part.invalid: <string>
+                    -->
+                    <span ng-switch-when="invalid">
+                      <i>
+                        [invalid {{part.invalid}}]
+                      </i>
+                    </span>
+  
+                    <!-- 
+                      default
+                      part.type: text
+                      expects:
+                        part.text
+                    -->
+                    <span ng-switch-when="text">{{part.text}}</span>
+                    <br ng-switch-when="newline" />
+                    <span ng-switch-when="tab">&nbps; &nbps;</span>
+                  </span>
+                </span>
+                  
+              </div>
               <span></span>
               <div ng-class="(messageEvent.bIncoming ? 'left' : 'right')" class="msg-ts" ng-if="messageEvent.type != 'system'">{{messageEvent.timestamp * 1000 | date:'shortTime'}}</div>
             <!--/div-->
