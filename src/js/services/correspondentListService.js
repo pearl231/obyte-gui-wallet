@@ -904,12 +904,24 @@ angular.module('copayApp.services').factory('correspondentListService', function
 		switch (message.type) {
 			case "system":
 				message.message = JSON.parse(message.message);
-				message.message = {
-					type: 'recordingPref',
-					state: message.message.state
-				};
+				message.message = [
+					{
+						type: 'recordingPref',
+						state: message.message.state
+					}
+				];
 				message.chat_recording_status = true;
 				break;
+			case "json":
+				/*
+				Parses messages stored with json type
+
+				Currently only sent_payment and received_payment event handlers use this
+				*/
+
+				message.message = JSON.parse(message.message);
+				break;
+
 			case "html": 
 				/*
 				Compatability layer for current and old messages
@@ -921,15 +933,17 @@ angular.module('copayApp.services').factory('correspondentListService', function
 				
 				**/
 
-				// Currently in use for sent_payment and received_payment event handlers. TODO: Better storage of those types
+				// In use up until this refactor: for sent_payment and received_payment event handlers.
 				var match = message.message.match(/<a ng-click="showPayment\('([^']+)'\)" class="payment">(.+?): (.+?)<\/a>/);
 				if (match.length) {
-					message.message = {
-						type: 'showPayment',
-						asset: match[1],
-						title: match[2],
-						text: match[3]
-					};
+					message.message = [
+						{
+							type: 'showPayment',
+							asset: match[1],
+							title: match[2],
+							text: match[3]
+						}
+					];
 					break;
 				}
 
@@ -944,11 +958,13 @@ angular.module('copayApp.services').factory('correspondentListService', function
 				*/
 				match = message.message.match(/<i>(.+?) to (.+?)<\/i>/);
 				if (match.length) {
-					message.message = {
-						type: 'sentPaymentRequest',
-						amountStr: match[1],
-						address: match[2]
-					};
+					message.message = [
+						{
+							type: 'sentPaymentRequest',
+							amountStr: match[1],
+							address: match[2]
+						}
+					];
 					break;
 				}
 
@@ -980,12 +996,14 @@ angular.module('copayApp.services').factory('correspondentListService', function
 					if (!objContract)
 						break;
 					
-					message.message = {
-						type: 'prosaicContract',
-						contractJsonBase64: match[1],
-						status: objContract.status ? objContract.status : 'offer',
-						title: objContract.title
-					};
+					message.message = [
+						{
+							type: 'prosaicContract',
+							contractJsonBase64: match[1],
+							status: objContract.status ? objContract.status : 'offer',
+							title: objContract.title
+						}
+					];
 					break;
 				}
 
@@ -1129,15 +1147,17 @@ angular.module('copayApp.services').factory('correspondentListService', function
 	eventBus.on("sent_payment", function(peer_address, amount, asset, bToSharedAddress){
 		var title = bToSharedAddress ? 'Payment to smart address' : 'Payment';
 		setCurrentCorrespondent(peer_address, function(bAnotherCorrespondent){
-			var body = {
-				type: 'showPayment',
-				asset: asset,
-				title: title,
-				text: getAmountText(amount, asset)
-			};
+			var body = [
+				{
+					type: 'showPayment',
+					asset: asset,
+					title: title,
+					text: getAmountText(amount, asset)
+				}
+			];
 			addMessageEvent(false, peer_address, body);
 			device.readCorrespondent(peer_address, function(correspondent){
-				if (correspondent.my_record_pref && correspondent.peer_record_pref) chatStorage.store(peer_address, body, 0, 'html');
+				if (correspondent.my_record_pref && correspondent.peer_record_pref) chatStorage.store(peer_address, JSON.stringify(body), 0, 'json');
 			});
 			$timeout(function(){
 				go.path('correspondentDevices.correspondentDevice');
@@ -1147,15 +1167,17 @@ angular.module('copayApp.services').factory('correspondentListService', function
 
 	eventBus.on("received_payment", function(peer_address, amount, asset, message_counter, bToSharedAddress){
 		var title = bToSharedAddress ? 'Payment to smart address' : 'Payment';
-		var body = {
-			type: 'showPayment',
-			asset: asset,
-			title: title,
-			text: getAmountText(amount, asset)
-		};
+		var body = [
+			{
+				type: 'showPayment',
+				asset: asset,
+				title: title,
+				text: getAmountText(amount, asset)
+			}
+		];
 		addMessageEvent(true, peer_address, body, message_counter);
 		device.readCorrespondent(peer_address, function(correspondent){
-			if (correspondent.my_record_pref && correspondent.peer_record_pref) chatStorage.store(peer_address, body, 1, 'html');
+			if (correspondent.my_record_pref && correspondent.peer_record_pref) chatStorage.store(peer_address, JSON.stringify(body), 1, 'json');
 		});
 	});
 
