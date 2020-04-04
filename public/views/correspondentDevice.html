@@ -313,10 +313,10 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                 <!-- system messages -->
                 <div ng-if="messageEvent.type == 'system'">
                   <div ng-repeat="part in messageEvent.message track by $index" ng-switch="part.type">
-                    <div ng-switch-when="newMessages"
+                    <span ng-switch-when="newMessages"
                       class="system-span">
                       new messages
-                    </div>
+                    </span>
                     
                     <div ng-switch-when="recordingPref">
                       <span class="system-span">
