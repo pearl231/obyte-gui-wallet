@@ -632,7 +632,13 @@ angular.module('copayApp.controllers').controller('correspondentDeviceController
 								}
 								$scope.arrHumanReadableDefinitions.push({
 									destinationAddress: destinationAddress,
-									humanReadableDefinition: correspondentListService.getHumanReadableDefinition(arrDefinition, arrMyAddresses, [], assocPeerNamesByAddress)
+									humanReadableDefinition: {
+										arrDefinition: arrDefinition, 
+										arrMyAddresses: arrMyAddresses, 
+										arrMyPubKeys: [], 
+										assocPeerNamesByAddress: assocPeerNamesByAddress,
+										bWithLinks: false
+									}
 								});
 							}
 							cb();
@@ -1017,7 +1023,7 @@ angular.module('copayApp.controllers').controller('correspondentDeviceController
 		var ModalInstanceCtrl = function($scope, $modalInstance) {
 			$scope.color = fc.backgroundColor;
 			$scope.bDisabled = true;
-			$scope.message_to_sign = correspondentListService.escapeHtmlAndInsertBr(object_to_sign ? JSON.stringify(object_to_sign, null, '\t') : message_to_sign);
+			$scope.message_to_sign = object_to_sign ? JSON.stringify(object_to_sign, null, '\t') : message_to_sign;
 			readMyPaymentAddress(fc, function(address){
 				$scope.address = address;
 				var arrAddreses = (object_to_sign ? json : message_to_sign).match(/\b[2-7A-Z]{32}\b/g) || [];
@@ -1108,7 +1114,7 @@ angular.module('copayApp.controllers').controller('correspondentDeviceController
 		
 		var ModalInstanceCtrl = function($scope, $modalInstance) {
 			$scope.color = fc.backgroundColor;
-			$scope.signed_message = correspondentListService.escapeHtmlAndInsertBr(typeof objSignedMessage.signed_message === 'string' ? objSignedMessage.signed_message : JSON.stringify(objSignedMessage.signed_message, null, '\t'));
+			$scope.signed_message = typeof objSignedMessage.signed_message === 'string' ? objSignedMessage.signed_message : JSON.stringify(objSignedMessage.signed_message, null, '\t');
 			$scope.address = objSignedMessage.authors[0].address;
 			var validation = require('ocore/validation.js');
 			validation.validateSignedMessage(objSignedMessage, function(err){

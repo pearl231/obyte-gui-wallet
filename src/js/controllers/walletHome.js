@@ -318,7 +318,13 @@ angular.module('copayApp.controllers')
 				walletGeneral.readMyAddresses(function(arrMyAddresses) {
 					walletDefinedByAddresses.readSharedAddressDefinition(address, function(arrDefinition, creation_ts) {
 						walletDefinedByAddresses.readSharedAddressPeers(address, function(assocPeerNamesByAddress) {
-							$scope.humanReadableDefinition = correspondentListService.getHumanReadableDefinition(arrDefinition, arrMyAddresses, [], assocPeerNamesByAddress, true);
+							$scope.humanReadableDefinition = {
+								arrDefinition: arrDefinition, 
+								arrMyAddresses: arrMyAddresses, 
+								arrMyPubKeys: [], 
+								assocPeerNamesByAddress: assocPeerNamesByAddress,
+								bWithLinks: true
+							};
 							$scope.creation_ts = creation_ts;
 							$timeout(function() {
 								$scope.$apply();

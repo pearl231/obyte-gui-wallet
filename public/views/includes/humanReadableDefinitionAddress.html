@@ -1,0 +1,11 @@
+<span ng-if="arrMyAddresses.indexOf(address) >= 0"
+    title="your address: {{address}}">
+    you
+</span>
+<span ng-if="arrMyAddresses.indexOf(address) < 0 && assocPeerNamesByAddress[address]"
+    title="peer address: {{address}}">
+    {{assocPeerNamesByAddress[address]}}
+</span>
+<span ng-if="arrMyAddresses.indexOf(address) < 0 && !assocPeerNamesByAddress[address]">
+    {{address}}
+</span>
