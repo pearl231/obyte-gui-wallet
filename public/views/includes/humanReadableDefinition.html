@@ -1,132 +1,130 @@
-<script type="text/ng-template" id="parse">
-    <div ng-switch="arrDefinition[0]" ng-init="args=arrDefinition[1]">
-        <span ng-switch-when="sig"
-            ng-init="pubkey = args.pubkey">
-            signed by {{arrMyPubKeys.indexOf(pubkey) >= 0 ? 'you' : 'public key ' + pubkey}}
-        </span>
+<div ng-switch="arrDefinition[0]" ng-init="args=arrDefinition[1]">
+    <span ng-switch-when="sig"
+        ng-init="pubkey=args.pubkey">
+        signed by {{arrMyPubKeys.indexOf(pubkey) >= 0 ? 'you' : 'public key ' + pubkey}}
+    </span>
 
-        <span ng-switch-when="address"
-            ng-init="address=args">
-            signed by <span ng-include="views/includes/humanReadableDefinitionAddress.html"></span>
-        </span>
+    <span ng-switch-when="address"
+        ng-init="address=args">
+        signed by <span ng-include="'views/includes/humanReadableDefinitionAddress.html'"></span>
+    </span>
 
-        <span ng-switch-when="cosigned by"
-            ng-init="address=args">
-            cosigned by <span ng-include="views/includes/humanReadableDefinitionAddress.html"></span>
-        </span>
+    <span ng-switch-when="cosigned by"
+        ng-init="address=args">
+        cosigned by <span ng-include="'views/includes/humanReadableDefinitionAddress.html'"></span>
+    </span>
 
-        <span ng-switch-when="not">
-            <span class="size-18">not</span>
+    <span ng-switch-when="not">
+        <span class="size-18">not</span>
+        <div class="indent">
+            <span ng-include="'views/includes/humanReadableDefinition.html'" ng-init="arrDefinition=args"></span>
+        </div>
+    </span>
+
+    <span ng-switch-when-separator="," ng-switch-when="or,and" ng-repeat="subDefinition in args track by $index">
+        <div class="indent">
+            <span ng-include="'views/includes/humanReadableDefinition.html'" ng-init="arrDefinition=subDefinition"></span>
+        </div>
+        <span ng-if="!$last" class="size-18">{{arrDefinition[0]}}</span>
+    </span>
+
+    <span ng-switch-when="r of set">
+        at least {{args.required}} of the following is true:
+        <br />
+        <span ng-repeat="subDefinition in args.set track by $index">
             <div class="indent">
-                <span ng-include="'parse'" ng-init="arrDefinition=args"></span>
+                <span ng-include="'views/includes/humanReadableDefinition.html'" ng-init="arrDefinition=subDefinition"></span>
             </div>
+            <span ng-if="!$last">,</span>
         </span>
+    </span>
 
-        <span ng-switch-when-separator="," ng-switch-when="or,and" ng-repeat="subDefinition as arrDefinition[1] tracked by $index">
+    <span ng-switch-when="weighted and">
+        the total weight of the true conditions below is at least {{args.required}}:
+        <br />
+        <span ng-repeat="subDefinition in args.set track by $index">
+            {{args.weight}}:
             <div class="indent">
-                <span ng-include="'parse'" ng-init="arrDefinition=subDefinition"></span>
+                <span ng-include="'views/includes/humanReadableDefinition.html'" ng-init="arrDefinition=subDefinition"></span>
             </div>
-            <span ng-if="!$last" class="size-18">{{arrDefinition[0]}}</span>
+            <span ng-if="!$last">,</span>
         </span>
+    </span>
 
-        <span ng-switch-when="r of set">
-            at least {{args.required}} of the following is true:
-            <br />
-            <span ng-repeat="subDefinition as args.set tracked by $index">
-                <div class="indent">
-                    <span ng-include="'parse'" ng-init="arrDefinition=subDefinition"></span>
-                </div>
-                <span ng-if="!$last">,</span>
+    <span ng-switch-when="timestamp">
+        <span ng-switch="args[0]">
+            <span ng-switch-when-separator="," ng-switch-when=">,>=">
+                after
+            </span>
+            <span ng-switch-when-separator="," ng-switch-when="<,<=">
+                before
+            </span>
+            <span ng-switch-when="=">
+                at
+            </span>
+            <span ng-switch-when="!=">
+                not at
             </span>
         </span>
+        {{new Date(args[1] * 1000).toString()}}
+    </span>
 
-        <span ng-switch-when="weighted and">
-            the total weight of the true conditions below is at least {{args.required}}:
-            <br />
-            <span ng-repeat="subDefinition as args.set tracked by $index">
-                {{args.weight}}:
-                <div class="indent">
-                    <span ng-include="'parse'" ng-init="arrDefinition=subDefinition"></span>
-                </div>
-                <span ng-if="!$last">,</span>
-            </span>
-        </span>
-
-        <span ng-switch-when="timestamp">
-            <span ng-switch="args[0]">
-                <span ng-switch-when-separator="," ng-switch-when=">,>=">
-                    after
-                </span>
-                <span ng-switch-when-separator="," ng-switch-when="<,<=">
-                    before
-                </span>
-                <span ng-switch-when="=">
-                    at
-                </span>
-                <span ng-switch-when="!=">
-                    not at
-                </span>
-            </span>
-            {{new Date(args[1] * 1000).toString()}}
-        </span>
-
-        <span ng-switch-when="in data feed"
-            ng-init="arrAddresses=args[0];feed_name=args[1];relation=args[2];value=args[3];min_mci=args[4];">
-
-            <span ng-if="feed_name==='timestamp' && relation==='>' && (typeof value === 'number' || parseInt(value).toString() === value)">
-                after {{((typeof value === 'number') ? new Date(value).toString() : new Date(parseInt(value)).toString())}}
-            </span>
-
-            <span ng-if="feed_name!=='timestamp'">
-                Oracle {{arrAddresses.join(', ')}} posted {{feed_name}} {{relation}} {{value}}
-                <span ng-if="min_mci"> after MCI {{min_mci}}</span>
-            </span>
-        </span>
-
-        <span ng-switch-when="in merkle"
+    <span ng-switch-when="in data feed"
         ng-init="arrAddresses=args[0];feed_name=args[1];relation=args[2];value=args[3];min_mci=args[4];">
-            A proof is provided that oracle {{arrAddresses.join(', ')}} posted {{value}} in {{feed_name}}
+
+        <span ng-if="feed_name==='timestamp' && relation==='>' && (typeof value === 'number' || parseInt(value).toString() === value)">
+            after {{((typeof value === 'number') ? new Date(value).toString() : new Date(parseInt(value)).toString())}}
+        </span>
+
+        <span ng-if="feed_name!=='timestamp'">
+            Oracle {{arrAddresses.join(', ')}} posted {{feed_name}} {{relation}} {{value}}
             <span ng-if="min_mci"> after MCI {{min_mci}}</span>
         </span>
+    </span>
 
-        <span ng-switch-when="has">
-            <span ng-if="args.what==='output' && args.asset && args.amount_at_least && args.address">
-                sends at least {{getAmountText(args.amount_at_least, args.asset)}} to {{getDisplayAddress(args.address)}}
-            </span>
+    <span ng-switch-when="in merkle"
+    ng-init="arrAddresses=args[0];feed_name=args[1];relation=args[2];value=args[3];min_mci=args[4];">
+        A proof is provided that oracle {{arrAddresses.join(', ')}} posted {{value}} in {{feed_name}}
+        <span ng-if="min_mci"> after MCI {{min_mci}}</span>
+    </span>
 
-            <span ng-if="args.what === 'output' && args.asset && args.amount && args.address">
-                sends {{getAmountText(args.amount, args.asset)}} to {{getDisplayAddress(args.address)}}
-            </span>
-
-            <span ng-if="args.what !== 'output'">
-                {{JSON.stringify(arrDefinition)}}
-            </span>
+    <span ng-switch-when="has">
+        <span ng-if="args.what==='output' && args.asset && args.amount_at_least && args.address">
+            sends at least {{getAmountText(args.amount_at_least, args.asset)}} to {{getDisplayAddress(args.address)}}
         </span>
 
-        <span ng-switch-when="seen">
-            <span ng-if="args.what === 'output' && args.asset && args.amount && args.address">
-                there was a transaction that sends 
-                <span ng-if="arrMyAddresses.indexOf(args.address) >= 0 && bWithLinks">
-                    <a ng-click="sendPayment(dest_address, args.amount, args.asset)">
-                        {{getAmountText(args.amount, args.asset)}}  to {{getDisplayAddress(args.address)}}
-                    </a>
-                </span>
-                <span ng-if="!bWithLinks">
-                    {{getAmountText(args.amount, args.asset)}}  to {{getDisplayAddress(args.address)}}
-                </span>
-            </span>
-
-            <span ng-if="args.what === 'input' && (args.asset && args.amount || !args.asset && !args.amount) && args.address">
-                there was a transaction that spends {{(args.asset && args.amount) ? getAmountText(args.amount, args.asset) : ''}} from {{args.address}}
-            </span>
-
-            <span ng-if="args.what !== 'output' && args.what !== 'input'">
-                {{JSON.stringify(arrDefinition)}}
-            </span>
+        <span ng-if="args.what === 'output' && args.asset && args.amount && args.address">
+            sends {{getAmountText(args.amount, args.asset)}} to {{getDisplayAddress(args.address)}}
         </span>
 
-        <span ng-switch-default>
+        <span ng-if="args.what !== 'output'">
             {{JSON.stringify(arrDefinition)}}
         </span>
-    </div>
-</script>
+    </span>
+
+    <span ng-switch-when="seen">
+        <span ng-if="args.what === 'output' && args.asset && args.amount && args.address">
+            there was a transaction that sends 
+            <span ng-if="arrMyAddresses.indexOf(args.address) >= 0 && bWithLinks">
+                <a ng-click="sendPayment(dest_address, args.amount, args.asset)">
+                    {{getAmountText(args.amount, args.asset)}}  to {{getDisplayAddress(args.address)}}
+                </a>
+            </span>
+            <span ng-if="!bWithLinks">
+                {{getAmountText(args.amount, args.asset)}}  to {{getDisplayAddress(args.address)}}
+            </span>
+        </span>
+
+        <span ng-if="args.what === 'input' && (args.asset && args.amount || !args.asset && !args.amount) && args.address">
+            there was a transaction that spends {{(args.asset && args.amount) ? getAmountText(args.amount, args.asset) : ''}} from {{args.address}}
+        </span>
+
+        <span ng-if="args.what !== 'output' && args.what !== 'input'">
+            {{JSON.stringify(arrDefinition)}}
+        </span>
+    </span>
+
+    <span ng-switch-default>
+        {{JSON.stringify(arrDefinition)}}
+    </span>
+</div>
