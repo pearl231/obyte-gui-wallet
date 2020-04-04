@@ -12,7 +12,7 @@ angular.module('copayApp.controllers').controller('botController',
 	var id = $stateParams.id;
 
 	bots.getBotByID(id, function(bot){
-		bot.description = correspondentListService.escapeHtmlAndInsertBr(bot.description);
+		bot.description = bot.description;
 		$scope.bot = bot;
 		$timeout(function(){
 			$scope.$digest();
