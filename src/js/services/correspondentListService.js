@@ -943,7 +943,7 @@ angular.module('copayApp.services').factory('correspondentListService', function
 
 				// In use up until this refactor: for sent_payment and received_payment event handlers.
 				var match = message.message.match(/<a ng-click="showPayment\('([^']+)'\)" class="payment">(.+?): (.+?)<\/a>/);
-				if (match.length) {
+				if (match && match.length) {
 					message.message = [
 						{
 							type: 'showPayment',
@@ -965,7 +965,7 @@ angular.module('copayApp.services').factory('correspondentListService', function
 				if (correspondent.my_record_pref && correspondent.peer_record_pref) chatStorage.store(correspondent.device_address, body, 0, 'html');
 				*/
 				match = message.message.match(/<i>(.+?) to (.+?)<\/i>/);
-				if (match.length) {
+				if (match && match.length) {
 					message.message = [
 						{
 							type: 'sentPaymentRequest',
@@ -999,7 +999,7 @@ angular.module('copayApp.services').factory('correspondentListService', function
 				if (correspondent.my_record_pref && correspondent.peer_record_pref) chatStorage.store(correspondent.device_address, body, 0, 'html');
 				*/
 				match = message.message.match(/\(prosaic-contract:([\w\/+=]+?)\)/);
-				if (match.length) {
+				if (match && match.length) {
 					objContract = getProsaicContractFromJsonBase64(match[1]);
 					if (!objContract)
 						break;
