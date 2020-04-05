@@ -189,6 +189,28 @@ angular.module('copayApp.directives')
       };
     }
   ])
+  .directive('displayHrd', ['correspondentListService', function(correspondentListService){
+    return {
+      restrict:'A',
+      replace: true,
+      scope: {
+        op: '=',
+        args: '=',
+        arrMyAddresses: '=',
+        arrMyPubKeys: '=',
+        assocPeerNamesByAddress: '=',
+        bWithLinks: '=',
+      },
+      link: function($scope) {
+        $scope.getAmountText = function(amount, asset) {
+            console.log(amount,asset)
+            console.log(correspondentListService.getAmountText(amount, asset))
+            return correspondentListService.getAmountText(amount, asset);
+        }
+     },
+      templateUrl: 'views/includes/humanReadableDefinition.html'
+    }
+  }])
   .directive('validAmount', ['configService', 'profileService',
     function(configService, profileService) {
 

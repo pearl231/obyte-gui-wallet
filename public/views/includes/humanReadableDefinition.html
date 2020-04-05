@@ -1,39 +1,81 @@
-<div ng-switch="arrDefinition[0]" ng-init="args=arrDefinition[1]">
-    <span ng-switch-when="sig"
-        ng-init="pubkey=args.pubkey">
-        signed by {{arrMyPubKeys.indexOf(pubkey) >= 0 ? 'you' : 'public key ' + pubkey}}
+<div ng-switch="op">
+    <span ng-switch-when="sig">
+        signed by {{arrMyPubKeys.indexOf(args.pubkey) >= 0 ? 'you' : 'public key ' + args.pubkey}}
     </span>
 
-    <span ng-switch-when="address"
-        ng-init="address=args">
-        signed by <span ng-include="'views/includes/humanReadableDefinitionAddress.html'"></span>
+    <span ng-switch-when="address">
+        signed by
+        <span ng-if="arrMyAddresses.indexOf(args) >= 0"
+            title="your address: {{args}}">
+            you
+        </span>
+        <span ng-if="arrMyAddresses.indexOf(args) < 0 && assocPeerNamesByAddress[args]"
+            title="peer address: {{args}}">
+            {{assocPeerNamesByAddress[args]}}
+        </span>
+        <span ng-if="arrMyAddresses.indexOf(args) < 0 && !assocPeerNamesByAddress[args]">
+            {{args}}
+        </span>
     </span>
 
-    <span ng-switch-when="cosigned by"
-        ng-init="address=args">
-        cosigned by <span ng-include="'views/includes/humanReadableDefinitionAddress.html'"></span>
+    <span ng-switch-when="cosigned by">
+        cosigned by
+        <span ng-if="arrMyAddresses.indexOf(args) >= 0"
+            title="your address: {{args}}">
+            you
+        </span>
+        <span ng-if="arrMyAddresses.indexOf(args) < 0 && assocPeerNamesByAddress[args]"
+            title="peer address: {{args}}">
+            {{assocPeerNamesByAddress[args]}}
+        </span>
+        <span ng-if="arrMyAddresses.indexOf(args) < 0 && !assocPeerNamesByAddress[args]">
+            {{args}}
+        </span>
     </span>
 
     <span ng-switch-when="not">
         <span class="size-18">not</span>
         <div class="indent">
-            <span ng-include="'views/includes/humanReadableDefinition.html'" ng-init="arrDefinition=args"></span>
+            <div
+                op="args[0]"
+                args="args[1]"
+                arr-my-addresses="arrMyAddresses"
+                arr-my-pub-keys="arrMyPubKeys"
+                assoc-peer-names-by-address="assocPeerNamesByAddress"
+                b-with-links="bWithLinks" 
+                display-hrd></div>
         </div>
     </span>
 
-    <span ng-switch-when-separator="," ng-switch-when="or,and" ng-repeat="subDefinition in args track by $index">
-        <div class="indent">
-            <span ng-include="'views/includes/humanReadableDefinition.html'" ng-init="arrDefinition=subDefinition"></span>
+    <div ng-switch-when-separator="," ng-switch-when="or,and">
+        <div ng-repeat="subDefinition in args track by $index">
+            <div class="indent">
+                <div
+                op="subDefinition[0]"
+                args="subDefinition[1]"
+                arr-my-addresses="arrMyAddresses"
+                arr-my-pub-keys="arrMyPubKeys"
+                assoc-peer-names-by-address="assocPeerNamesByAddress"
+                b-with-links="bWithLinks" 
+                display-hrd></div>
+            </div>
+            <span ng-if="!$last" class="size-18">{{op}}</span>
         </div>
-        <span ng-if="!$last" class="size-18">{{arrDefinition[0]}}</span>
-    </span>
+    </div>
 
     <span ng-switch-when="r of set">
         at least {{args.required}} of the following is true:
         <br />
         <span ng-repeat="subDefinition in args.set track by $index">
             <div class="indent">
-                <span ng-include="'views/includes/humanReadableDefinition.html'" ng-init="arrDefinition=subDefinition"></span>
+                <div
+                    op="subDefinition[0]"
+                    args="subDefinition[1]"
+                    arr-my-addresses="arrMyAddresses"
+                    arr-my-pub-keys="arrMyPubKeys"
+                    assoc-peer-names-by-address="assocPeerNamesByAddress"
+                    b-with-links="bWithLinks" 
+                    display-hrd></div>
             </div>
             <span ng-if="!$last">,</span>
         </span>
@@ -45,7 +87,14 @@
         <span ng-repeat="subDefinition in args.set track by $index">
             {{args.weight}}:
             <div class="indent">
-                <span ng-include="'views/includes/humanReadableDefinition.html'" ng-init="arrDefinition=subDefinition"></span>
+                <div
+                    op="subDefinition[0]"
+                    args="subDefinition[1]"
+                    arr-my-addresses="arrMyAddresses"
+                    arr-my-pub-keys="arrMyPubKeys"
+                    assoc-peer-names-by-address="assocPeerNamesByAddress"
+                    b-with-links="bWithLinks" 
+                    display-hrd></div>
             </div>
             <span ng-if="!$last">,</span>
         </span>
@@ -66,35 +115,54 @@
                 not at
             </span>
         </span>
-        {{new Date(args[1] * 1000).toString()}}
+        {{args[1] * 1000 | date: 'MMM dd, yyyy'}}
     </span>
 
-    <span ng-switch-when="in data feed"
-        ng-init="arrAddresses=args[0];feed_name=args[1];relation=args[2];value=args[3];min_mci=args[4];">
-
-        <span ng-if="feed_name==='timestamp' && relation==='>' && (typeof value === 'number' || parseInt(value).toString() === value)">
-            after {{((typeof value === 'number') ? new Date(value).toString() : new Date(parseInt(value)).toString())}}
+    <span ng-switch-when="in data feed">
+        <span ng-if="args[1]==='timestamp' && args[2]==='>' && (parseInt(args[3]).toString() === args[3])">
+            after {{ ((typeof args[3] === 'number') ? args[3]) : parseInt(args[3])) | date: 'MMM dd, yyyy'}}
         </span>
 
-        <span ng-if="feed_name!=='timestamp'">
-            Oracle {{arrAddresses.join(', ')}} posted {{feed_name}} {{relation}} {{value}}
-            <span ng-if="min_mci"> after MCI {{min_mci}}</span>
+        <span ng-if="args[1]!=='timestamp'">
+            Oracle {{args[0].join(', ')}} posted {{args[1]}} {{args[2]}} {{args[3]}}
+            <span ng-if="args[4]"> after MCI {{args[4]}}</span>
         </span>
     </span>
 
-    <span ng-switch-when="in merkle"
-    ng-init="arrAddresses=args[0];feed_name=args[1];relation=args[2];value=args[3];min_mci=args[4];">
-        A proof is provided that oracle {{arrAddresses.join(', ')}} posted {{value}} in {{feed_name}}
-        <span ng-if="min_mci"> after MCI {{min_mci}}</span>
+    <span ng-switch-when="in merkle">
+        A proof is provided that oracle {{args[0].join(', ')}} posted {{args[3]}} in {{args[1]}}
+        <span ng-if="args[4]"> after MCI {{args[4]}}</span>
     </span>
 
     <span ng-switch-when="has">
         <span ng-if="args.what==='output' && args.asset && args.amount_at_least && args.address">
-            sends at least {{getAmountText(args.amount_at_least, args.asset)}} to {{getDisplayAddress(args.address)}}
+            sends at least {{getAmountText(args.amount_at_least, args.asset)}} to 
+            <span ng-if="arrMyAddresses.indexOf(args.address) >= 0"
+                title="your address: {{args.address}}">
+                you
+            </span>
+            <span ng-if="arrMyAddresses.indexOf(args.address) < 0 && assocPeerNamesByAddress[args.address]"
+                title="peer address: {{args.address}}">
+                {{assocPeerNamesByAddress[args.address]}}
+            </span>
+            <span ng-if="arrMyAddresses.indexOf(args.address) < 0 && !assocPeerNamesByAddress[args.address]">
+                {{args.address}}
+            </span>
         </span>
 
         <span ng-if="args.what === 'output' && args.asset && args.amount && args.address">
-            sends {{getAmountText(args.amount, args.asset)}} to {{getDisplayAddress(args.address)}}
+            sends {{getAmountText(args.amount, args.asset)}} to
+            <span ng-if="arrMyAddresses.indexOf(args.address) >= 0"
+                title="your address: {{args.address}}">
+                you
+            </span>
+            <span ng-if="arrMyAddresses.indexOf(args.address) < 0 && assocPeerNamesByAddress[args.address]"
+                title="peer address: {{args.address}}">
+                {{assocPeerNamesByAddress[args.address]}}
+            </span>
+            <span ng-if="arrMyAddresses.indexOf(args.address) < 0 && !assocPeerNamesByAddress[args.address]">
+                {{args.address}}
+            </span>
         </span>
 
         <span ng-if="args.what !== 'output'">
@@ -107,11 +175,33 @@
             there was a transaction that sends 
             <span ng-if="arrMyAddresses.indexOf(args.address) >= 0 && bWithLinks">
                 <a ng-click="sendPayment(dest_address, args.amount, args.asset)">
-                    {{getAmountText(args.amount, args.asset)}}  to {{getDisplayAddress(args.address)}}
+                    {{getAmountText(args.amount, args.asset)}}  to
+                    <span ng-if="arrMyAddresses.indexOf(args.address) >= 0"
+                        title="your address: {{args.address}}">
+                        you
+                    </span>
+                    <span ng-if="arrMyAddresses.indexOf(args.address) < 0 && assocPeerNamesByAddress[args.address]"
+                        title="peer address: {{args.address}}">
+                        {{assocPeerNamesByAddress[args.address]}}
+                    </span>
+                    <span ng-if="arrMyAddresses.indexOf(args.address) < 0 && !assocPeerNamesByAddress[args.address]">
+                        {{args.address}}
+                    </span>
                 </a>
             </span>
-            <span ng-if="!bWithLinks">
-                {{getAmountText(args.amount, args.asset)}}  to {{getDisplayAddress(args.address)}}
+            <span ng-if="arrMyAddresses.indexOf(args.address) < 0 || !bWithLinks">
+                {{getAmountText(args.amount, args.asset)}}  to 
+                <span ng-if="arrMyAddresses.indexOf(args.address) >= 0"
+                    title="your address: {{args.address}}">
+                    you
+                </span>
+                <span ng-if="arrMyAddresses.indexOf(args.address) < 0 && assocPeerNamesByAddress[args.address]"
+                    title="peer address: {{args.address}}">
+                    {{assocPeerNamesByAddress[args.address]}}
+                </span>
+                <span ng-if="arrMyAddresses.indexOf(args.address) < 0 && !assocPeerNamesByAddress[args.address]">
+                    {{args.address}}
+                </span>
             </span>
         </span>
 

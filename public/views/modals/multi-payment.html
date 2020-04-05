@@ -27,14 +27,13 @@
 		<li class="line-b p10 oh enable_text_select" ng-repeat="hrd in arrHumanReadableDefinitions">
 		  <div>{{hrd.destinationAddress}} <span translate>can be spent if:</span></div>
       <div class="center" 
-        ng-include="'views/includes/humanReadableDefinition.html'" 
-        ng-init="
-          arrDefinition=hdr.humanReadableDefinition.arrDefinition;
-          arrMyAddresses=hdr.humanReadableDefinition.arrMyAddresses;
-          arrMyPubKeys=hdr.humanReadableDefinition.arrMyPubKeys;
-          assocPeerNamesByAddress=hdr.humanReadableDefinition.assocPeerNamesByAddress;
-          bWithLinks=hdr.humanReadableDefinition.bWithLinks;
-      "></div>
+        op="hrd.humanReadableDefinition.arrDefinition[0]"
+        args="hrd.humanReadableDefinition.arrDefinition[1]"
+        arr-my-addresses="hrd.humanReadableDefinition.arrMyAddresses"
+        arr-my-pub-keys="hrd.humanReadableDefinition.arrMyPubKeys"
+        assoc-peer-names-by-address="hrd.humanReadableDefinition.assocPeerNamesByAddress"
+        b-with-links="hrd.humanReadableDefinition.bWithLinks" 
+        display-hrd></div>
 		</li>
 	  </ul>
   </div>

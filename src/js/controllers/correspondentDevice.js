@@ -1886,22 +1886,6 @@ angular.module('copayApp.controllers').controller('correspondentDeviceController
 			});
 		}
 	};
-}).directive('dynamic', function ($compile) {
-	return {
-		restrict: 'A',
-		replace: true,
-		link: function (scope, ele, attrs) {
-			scope.$watch(attrs.dynamic, function(html) {
-				ele.html((html || '').replace(/(^|>)(.*?)(<|$)/g, function (str, closing_bracket, between, opening_bracket) {
-					if (!between.match(/\W/))
-						return str;
-					return closing_bracket + '<span ng-non-bindable>' + between + '</span>' + opening_bracket;
-				}));
-			//	ele.html(html);
-				$compile(ele.contents())(scope);
-			});
-		}
-	};
 }).directive('scrollBottom', function ($timeout) { // based on http://plnkr.co/edit/H6tFjw1590jHT28Uihcx?p=preview
 	return {
 		link: function (scope, element) {

@@ -14,15 +14,17 @@
 
 <div class="modal-content fix-modals-touch">
 	<div class="row columns m20t enable_text_select">{{address}} <span translate>can be spent if:</span></div>
-	<div class="row columns m20t size-14 center enable_text_select" 
-		ng-include="'views/includes/humanReadableDefinition.html'" 
-		ng-init="
-			arrDefinition=humanReadableDefinition.arrDefinition;
-			arrMyAddresses=humanReadableDefinition.arrMyAddresses;
-			arrMyPubKeys=humanReadableDefinition.arrMyPubKeys;
-			assocPeerNamesByAddress=humanReadableDefinition.assocPeerNamesByAddress;
-			bWithLinks=humanReadableDefinition.bWithLinks;
-		"></div>
+	<div class="row columns m20t size-14 center enable_text_select">
+		<div
+			op="humanReadableDefinition.arrDefinition[0]"
+			args="humanReadableDefinition.arrDefinition[1]"
+			arr-my-addresses="humanReadableDefinition.arrMyAddresses"
+			arr-my-pub-keys="humanReadableDefinition.arrMyPubKeys"
+			assoc-peer-names-by-address="humanReadableDefinition.assocPeerNamesByAddress"
+			b-with-links="humanReadableDefinition.bWithLinks" 
+			display-hrd></div>
+	</div>
+		
 	<div class="row columns m20t size-14">
 		<span class="text-gray" translate>Peer:</span>
 		<span>{{shared_address_cosigners}}</span>
