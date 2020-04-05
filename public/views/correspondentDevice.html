@@ -341,7 +341,7 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                       expects:
                         part.address: <string>
                     -->
-                    <div ng-switch-when="paymentDropdown">
+                    <span ng-switch-when="paymentDropdown">
                       <a dropdown-toggle="#pop{{part.address}}">{{part.address}}</a>
                       <ul ng-attr-id="{{'pop'+part.address}}" class="f-dropdown" style="left:0px" data-dropdown-content>
                         <li>
@@ -360,7 +360,7 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                           </a>
                         </li>
                       </ul>
-                    </div>
+                    </span>
   
                     <!--
                       part.type: openExternalLink
