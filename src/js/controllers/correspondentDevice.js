@@ -968,7 +968,7 @@ angular.module('copayApp.controllers').controller('correspondentDeviceController
 							}
 							var body = 'voted:'+objVote.choice;
 							device.sendMessageToDevice(recipient_device_address, 'text', body);
-							correspondentListService.addMessageEvent(false, recipient_device_address, body);
+							correspondentListService.addMessageEvent(false, recipient_device_address, correspondentListService.formatOutgoingMessage(body));
 							$rootScope.$emit("NewOutgoingTx");
 						});
 						$modalInstance.dismiss('cancel');
