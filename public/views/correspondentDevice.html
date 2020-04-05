@@ -341,27 +341,24 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                       expects:
                         part.address: <string>
                     -->
-                    <span ng-switch-when="paymentDropdown">
-                      <a dropdown-toggle="#pop{{part.address}}">{{part.address}}</a>
-                      <ul ng-attr-id="{{'pop'+part.address}}" class="f-dropdown" style="left:0px" data-dropdown-content>
-                        <li>
-                          <a ng-click="sendPayment(part.address)" translate>
-                            Pay to this address
-                          </a>
-                        </li>
-                        <li>
-                          <a ng-click="offerContract(part.address)" translate>
-                            Offer a contract
-                          </a>
-                        </li>
-                        <li>
-                          <a ng-click="offerProsaicContract(part.address)" translate>
-                            Offer prosaic contract
-                          </a>
-                        </li>
-                      </ul>
-                    </span>
-  
+                    <a ng-switch-when="paymentDropdown" dropdown-toggle="#pop{{part.address}}">{{part.address}}</a>
+                    <ul ng-attr-id="{{'pop'+part.address}}" class="f-dropdown" style="left:0px" data-dropdown-content>
+                      <li>
+                        <a ng-click="sendPayment(part.address)" translate>
+                          Pay to this address
+                        </a>
+                      </li>
+                      <li>
+                        <a ng-click="offerContract(part.address)" translate>
+                          Offer a contract
+                        </a>
+                      </li>
+                      <li>
+                        <a ng-click="offerProsaicContract(part.address)" translate>
+                          Offer prosaic contract
+                        </a>
+                      </li>
+                    </ul>
                     <!--
                       part.type: openExternalLink
                       expects:
@@ -372,7 +369,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                       class="external-link">
                       {{part.link}}
                     </a>
-  
                     <!--
                       part.type: paymentRequest
                       expects:
@@ -388,7 +384,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                        ng-click="sendPayment(part.address, part.amount, part.asset, part.device_address, part.single_address, part.base64data)">
                        {{part.amountStr}}
                     </a>
-  
                     <!--
                       part.type: showPayment
                       expects:
@@ -401,7 +396,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                       class="payment">
                       {{part.title}}: {{part.text}}
                     </a>
-
                     <!-- 
                       part.type: pairingCode
                       expects:
@@ -414,7 +408,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                        ng-click="handleUri(part.uri)">
                       [Pair with device: {{part.device_pubkey}}@{{part.hub}}#{{part.pairing_code}}]
                     </a>
-  
                     <!-- 
                       part.type: textcoin
                       expects: 
@@ -425,7 +418,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                        ng-click="handleUrl(part.uri)">
                       [Claim textcoin: {{part.mnemonic}}]
                     </a>
-  
                     <!-- 
                       part.type: data
                       expects:
@@ -436,7 +428,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                        ng-click="handleUri(part.uri)">
                       [Send data: {{JSON.stringify(part.assocParams, null, 2)}}]
                     </a>
-                    
                     <!-- 
                       part.type: suggestCommand 
                       expects:
@@ -512,7 +503,7 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                     -->
                     <a ng-switch-when="signMessageRequest"
                        ng-click="showSignMessageModal(part.message_to_sign, !!part.network_aware)">
-                       [Request to sign message: {{tryParseBase64(part.message_to_sign)}}]
+                       [Request to sign message: {{JSON.stringify(part.message_to_sign, null, '\t')}}]
                     </a>
                     
                     <!-- 
