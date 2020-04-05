@@ -334,8 +334,8 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
 
                 
                 <!-- parsed incoming messages -->
-                <div ng-if="messageEvent.bIncoming ">
-                  <div ng-repeat="part in messageEvent.message track by $index" ng-switch="part.type">
+                <span ng-if="messageEvent.bIncoming">
+                  <span ng-repeat="part in messageEvent.message track by $index" ng-switch="part.type">
                     <!-- 
                       part.type: paymentDropdown 
                       expects:
@@ -564,16 +564,13 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                       expects:
                         part.text: <string>
                      -->
-                    <span ng-switch-when="text">{{part.text}}</span>
-
-                    <br ng-switch-when="newline" />
-                    <span ng-switch-when="tab">&nbps; &nbps;</span>
-                  </div>                  
-                </div>
+                    <span ng-switch-when="text" style="white-space: pre-wrap;">{{part.text}}</span>
+                  </span>                  
+                </span>
 
                 <!-- parsed outgoing messages -->
-                <div ng-if="!messageEvent.bIncoming">
-                  <div ng-repeat="part in messageEvent.message track by $index" ng-switch="part.type">
+                <span ng-if="!messageEvent.bIncoming">
+                  <span ng-repeat="part in messageEvent.message track by $index" ng-switch="part.type">
                     <!-- 
                       part.type: sentPaymentRequest 
                       expects:
@@ -733,11 +730,9 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                       expects:
                         part.text
                     -->
-                    <span ng-switch-when="text">{{part.text}}</span>
-                    <br ng-switch-when="newline" />
-                    <span ng-switch-when="tab">&nbps; &nbps;</span>
-                  </div>
-                </div>
+                    <span ng-switch-when="text" style="white-space: pre-wrap;">{{part.text}}</span>
+                  </span>
+                </span>
                   
               </div>
               <span></span>
