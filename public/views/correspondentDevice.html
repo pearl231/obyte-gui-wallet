@@ -496,9 +496,9 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                         part.network_aware: <any>
                     -->
                     <a ng-switch-when="signMessageRequest"
-                       ng-click="showSignMessageModal(part.message_to_sign, !!part.network_aware)">
-                       [Request to sign message: {{tryParseBase64(part.message_to_sign)}}]
-                    </a>
+                       ng-click="showSignMessageModal(part.message_to_sign, !!part.network_aware)"
+                       style="white-space: pre-wrap;"
+                      >[Request to sign message: {{tryParseBase64(part.message_to_sign)}}]</a>
                     <!-- 
                       part.type: signedMessage
                       expects:
