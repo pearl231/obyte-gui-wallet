@@ -463,6 +463,19 @@ angular.module('copayApp.controllers').controller('correspondentDeviceController
 		});
 	};
 
+	$scope.tryParseBase64 = function(str) {
+		if (!ValidationUtils.isValidBase64(str))
+			return str;
+		var json = Buffer.from(str, 'base64').toString('utf8');
+		try{
+			var obj = JSON.parse(json);
+		}
+		catch(e){
+			return str;
+		}
+		return JSON.stringify(obj, null, '\t');
+	}
+
 	$scope.offerProsaicContract = function(address){
 		var walletDefinedByAddresses = require('ocore/wallet_defined_by_addresses.js');
 		var prosaic_contract = require('ocore/prosaic_contract.js');

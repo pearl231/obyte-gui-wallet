@@ -439,7 +439,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                        class="suggest-command">
                       {{part.description}}
                     </a>
-                    
                     <!--
                       part.type: command
                       expects:
@@ -451,7 +450,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                        class="command">
                       {{part.description}}
                     </a>
-                    
                     <!--
                       part.type: sendPayment
                       expects:
@@ -462,7 +460,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                        ng-click="sendMultiPayment(part.paymentJsonBase64)">
                       {{part.description}}
                     </a>
-                    
                     <!--
                       part.type: vote
                       expects:
@@ -473,7 +470,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                        ng-click="sendVote(part.voteJsonBase64)">
                       {{part.choice}}  
                     </a>
-                    
                     <!--
                       part.type: profile
                       expects:
@@ -484,7 +480,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                        ng-click="acceptPrivateProfile(part.privateProfileJsonBase64)">
                       [Profile of {{part.label}}]  
                     </a>
-                    
                     <!--
                       part.type: profileRequest
                       expects:
@@ -494,7 +489,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                        ng-click="choosePrivateProfile(part.fields_list)">
                       [Request for profile]  
                     </a>
-                    
                     <!-- 
                       part.type: signMessageRequest
                       expects:
@@ -503,9 +497,8 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                     -->
                     <a ng-switch-when="signMessageRequest"
                        ng-click="showSignMessageModal(part.message_to_sign, !!part.network_aware)">
-                       [Request to sign message: {{JSON.stringify(part.message_to_sign, null, '\t')}}]
+                       [Request to sign message: {{tryParseBase64(part.message_to_sign)}}]
                     </a>
-                    
                     <!-- 
                       part.type: signedMessage
                       expects:
@@ -525,7 +518,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                       </span>
                       ]
                     </i>
-                    
                     <!-- 
                       part.type: prosaicContract
                       expects:
@@ -538,7 +530,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                        class="prosaic_contract_offer">
                       [Prosaic contract {{part.status}}: {{part.title}}]
                     </a>
-                    
                     <!--
                       part.type: invalid
                       expects:
@@ -549,7 +540,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                         [invalid {{part.invalid}}]
                       </i>
                     </span>
-  
                     <!-- 
                       part.type: text
                       expects:
@@ -569,9 +559,8 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                         part.amountStr: <string>
                     -->
                     <i ng-switch-when="sentPaymentRequest">
-                        {{part.amountStr}} to {{part.address}}
+                      {{part.amountStr}} to {{part.address}}
                     </i>
-  
                     <!--
                       part.type: showPayment
                       expects:
@@ -584,7 +573,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                       class="payment">
                       {{part.title}}: {{part.text}}
                     </a>
-
                     <!--
                       part.type: paymentRequest
                       expects:
@@ -593,7 +581,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                     <i ng-switch-when="paymentRequest">
                       [Payment Request: {{part.arrMovements.join(', ')}}]
                     </i>
-                      
                     <!-- 
                       part.type: pairingCode
                       expects:
@@ -604,7 +591,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                     <i ng-switch-when="pairingCode">
                       [Sent pairing code: {{part.device_pubkey}}@{{part.hub}}#{{part.pairing_code}}]
                     </i>
-                    
                     <!--
                       part.type: textcoin
                       expects:
@@ -613,7 +599,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                     <i ng-switch-when="textcoin">
                       [Sent textcoin: {{part.mnemonic}}]
                     </i>
-  
                     <!--
                       part.type: data
                       expects:
@@ -622,7 +607,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                     <i ng-switch-when="data">
                       [Sent data: {{part.data}}]
                     </i>
-  
                     <!--
                       part.type: vote
                       expects:
@@ -631,7 +615,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                     <i ng-switch-when="vote">
                       [Vote request: {{part.choice}}]
                     </i>
-  
                     <!--
                       part.type: profile
                       expects:
@@ -642,7 +625,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                       ng-click="acceptPrivateProfile(part.privateProfileJsonBase64)">
                       [Profile of {{part.label}}]
                     </a>
-  
                     <!-- 
                       part.type: profileRequest
                       expects:
@@ -651,7 +633,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                     <i ng-switch-when="profileRequest">
                       [Request for profile fields {{part.fields_list}}]
                     </i>
-  
                     <!--
                       part.type: signMessageRequest
                       expects:
@@ -660,7 +641,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                     <i ng-switch-when="signMessageRequest">
                       [Request to sign message: {{part.message_to_sign}}]
                     </i>
-  
                     <!-- 
                       part.type: signedMessage 
                       expects:
@@ -680,7 +660,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                       </span>
                       ]
                     </i>
-  
                     <!-- 
                       part.type: openExternalLink
                       expects:
@@ -690,7 +669,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                       ng-click="openExternalLink(part.link)">
                       {{part.link}}
                     </a>
-  
                     <!--
                       part.type: prosaicContract
                       expects:
@@ -703,7 +681,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                       class="prosaic_contract_offer">
                       [Prosaic contract {{part.status}}: {{part.title}}]
                     </a>
-  
                     <!-- 
                       part.type: invalid
                       expects:
@@ -714,7 +691,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                         [invalid {{part.invalid}}]
                       </i>
                     </span>
-  
                     <!-- 
                       default
                       part.type: text
@@ -724,7 +700,6 @@ Chat bubble CSS credits http://codepen.io/samuelkraft/pen/Farhl
                     <span ng-switch-when="text" style="white-space: pre-wrap;">{{part.text}}</span>
                   </span>
                 </span>
-                  
               </div>
               <span></span>
               <div ng-class="(messageEvent.bIncoming ? 'left' : 'right')" class="msg-ts" ng-if="messageEvent.type != 'system'">{{messageEvent.timestamp * 1000 | date:'shortTime'}}</div>

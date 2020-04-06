@@ -443,19 +443,6 @@ angular.module('copayApp.services').factory('correspondentListService', function
 		return info;
 	}
 
-	function tryParseBase64(str) {
-		if (!ValidationUtils.isValidBase64(str))
-			return str;
-		var json = Buffer.from(str, 'base64').toString('utf8');
-		try{
-			var obj = JSON.parse(json);
-		}
-		catch(e){
-			return str; // it is already escapeHtml'd
-		}
-		return JSON.stringify(obj, null, '\t');
-	}
-	
 	function getPaymentsByAsset(objMultiPaymentRequest){
 		var assocPaymentsByAsset = {};
 		objMultiPaymentRequest.payments.forEach(function(objPayment){
